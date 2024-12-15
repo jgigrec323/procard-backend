@@ -65,6 +65,8 @@ model Product {
   updatedAt   DateTime @updatedAt
 
   orders Order[] // Link to orders for this product
+
+  Color Color[]
 }
 
 model CardContent {
@@ -81,4 +83,14 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+}
+
+model Color {
+  id        String   @id @default(uuid())
+  name      String // Color name (e.g., "Black", "White")
+  value     String // Color value (e.g., "#000000")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
 }
