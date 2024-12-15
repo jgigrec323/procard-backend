@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique @db.VarChar(255)
+  password  String
+  phone     String?   @db.VarChar(20)
+  role      String    @default("user")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  cards     Card[]
+  orders    Order[]
+
+  @@index([email])
+}
+
+model Card {
+  id             String       @id @default(uuid())
+  type           String
+  status         String
+  activationDate DateTime?
+  linkedUser     User?        @relation(fields: [linkedUserId], references: [id])
+  linkedUserId   String?
+  uniqueURL      String       @unique
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  content        CardContent?
+  orders         Order?
+
+  @@index([uniqueURL])
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  user            User        @relation(fields: [userId], references: [id])
+  userId          String
+  card            Card?       @relation(fields: [cardId], references: [id])
+  cardId          String?     @unique
+  product         Product?    @relation(fields: [productId], references: [id])
+  productId       String?
+  price           Decimal
+  status          OrderStatus
+  shippingAddress String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String // Product name (e.g., "Black NFC Card")
+  color       String // Color of the product (e.g., "Black", "White")
+  price       Decimal // Price of the product
+  quantity    Int // Quantity available in stock
+  description String? // Optional description for the product
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orders Order[] // Link to orders for this product
+}
+
+model CardContent {
+  id        String   @id @default(uuid())
+  card      Card     @relation(fields: [cardId], references: [id])
+  cardId    String   @unique
+  content   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
