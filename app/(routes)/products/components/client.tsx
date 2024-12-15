@@ -3,13 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { columns } from "./columns";
+import { columns, ProductColumn } from "./columns";
 import { DataTable } from "@/components/ui/data-table";
-import { Product } from "@prisma/client";
 import { Heading } from "@/components/ui/heading";
 
 interface ProductClientProps {
-  data: Product[];
+  data: ProductColumn[];
 }
 
 const ProductClient: React.FC<ProductClientProps> = ({ data }) => {

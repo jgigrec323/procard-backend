@@ -55,18 +55,22 @@ model Order {
 }
 
 model Product {
-  id          String   @id @default(uuid())
-  name        String // Product name (e.g., "Black NFC Card")
-  color       String // Color of the product (e.g., "Black", "White")
-  price       Decimal // Price of the product
-  quantity    Int // Quantity available in stock
-  description String? // Optional description for the product
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id          String  @id @default(uuid())
+  name        String
+  price       Decimal
+  quantity    Int
+  description String
+  isFeatured  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  colorId String
+  color   Color  @relation(fields: [colorId], references: [id])
 
   orders Order[] // Link to orders for this product
 
-  Color Color[]
+  @@index([colorId])
 }
 
 model CardContent {

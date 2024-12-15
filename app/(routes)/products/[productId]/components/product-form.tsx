@@ -29,8 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ProductFormProps {
   initialData: Product | null;
@@ -50,6 +50,7 @@ const formSchema = z.object({
     .max(160, {
       message: "Bio must not be longer than 30 characters.",
     }),
+  isFeatured: z.boolean().default(false).optional(),
 });
 
 type ProductFormValues = z.infer<typeof formSchema>;
@@ -78,6 +79,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           colorId: "",
           quantity: 0,
           description: "",
+          isFeatured: false,
         },
   });
 
@@ -85,14 +87,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     try {
       setLoading(true);
       if (initialData) {
-        await axios.patch(
-          `/api/${params.storeId}/products/${params.productId}`,
-          data
-        );
+        await axios.patch(`/api/products/${params.productId}`, data);
       } else {
-        await axios.post(`/api/${params.storeId}/products`, data);
+        await axios.post(`/api/products`, data);
       }
-      router.push(`/${params.storeId}/products`);
+      router.push(`/products`);
       router.refresh();
       toast.success(toastMessage);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -106,9 +105,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const onDelete = async () => {
     try {
       setLoading(true);
-      await axios.delete(`/api/${params.storeId}/products/${params.productId}`);
+      await axios.delete(`/api/products/${params.productId}`);
 
-      router.push(`/${params.storeId}/products`);
+      router.push(`/products`);
       toast.success("Product deleted.");
       router.refresh();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -249,6 +248,28 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isFeatured"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={(value) => {
+                        field.onChange(value);
+                      }}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Featured</FormLabel>
+                    <FormDescription>
+                      This product will apppear on the home page
+                    </FormDescription>
+                  </div>
                 </FormItem>
               )}
             />
