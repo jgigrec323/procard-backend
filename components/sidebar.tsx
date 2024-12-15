@@ -13,6 +13,7 @@ const Sidebar = () => {
     { path: "/", label: "Dashboard" },
     { path: "/cards", label: "Cards" },
     { path: "/products", label: "Products" },
+    { path: "/colors", label: "Colors" },
     { path: "/users", label: "Users" },
     { path: "/orders", label: "Orders" },
     { path: "/settings", label: "Settings" },

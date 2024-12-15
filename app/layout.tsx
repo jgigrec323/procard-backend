@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import Sidebar from "@/components/sidebar";
-import MainBar from "@/components/main-bar";
+import { ToasterProvider } from "@/providers/toast-provider";
 
 export const metadata: Metadata = {
   title: "Procard Admin Board",
@@ -18,7 +18,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="fr-FR">
         <body className="flex min-h-screen bg-gray-100 text-gray-900">
-          {/* Sidebar */}
+          <ToasterProvider></ToasterProvider>
           <Sidebar />
 
           {/* Main Content Area */}
