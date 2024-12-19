@@ -33,7 +33,6 @@ model Card {
   linkedUser     User         @relation("UserToCard", fields: [linkedUserId], references: [id])
   uniqueURL      String       @unique
   content        CardContent?
-  orders         Order?       @relation("CardToOrder")
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -44,35 +43,46 @@ model Card {
 model Order {
   id              String      @id @default(uuid())
   userId          String
-  user            User        @relation("UserToOrder", fields: [userId], references: [id])
-  cardId          String?     @unique
-  card            Card?       @relation("CardToOrder", fields: [cardId], references: [id])
-  productId       String?
-  product         Product?    @relation("ProductToOrder", fields: [productId], references: [id])
-  price           Decimal
-  status          OrderStatus
+  user            User        @relation("UserToOrder", fields: [userId], references: [id], onDelete: Cascade)
+  phone           String      @db.VarChar(20) // Phone field for contact details
   shippingAddress String?
+  orderItems      OrderItem[] @relation("OrderToOrderItem") // One-to-many relationship with OrderItem
+  isPaid          Boolean     @default(false) // Track payment status
+  status          OrderStatus
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
   @@index([userId])
-  @@index([cardId])
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation("OrderToOrderItem", fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation("ProductToOrderItem", fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int      @default(1) // Quantity of the product
+  price     Decimal // Price of the product at the time of purchase
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
   @@index([productId])
 }
 
 model Product {
-  id          String   @id @default(uuid())
+  id          String      @id @default(uuid())
   name        String
   price       Decimal
   quantity    Int
   description String
-  isFeatured  Boolean  @default(false)
-  isArchived  Boolean  @default(false)
+  isFeatured  Boolean     @default(false)
+  isArchived  Boolean     @default(false)
   colorId     String
-  color       Color    @relation("ColorToProduct", fields: [colorId], references: [id])
-  orders      Order[]  @relation("ProductToOrder")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  color       Color       @relation("ColorToProduct", fields: [colorId], references: [id])
+  orderItems  OrderItem[] @relation("ProductToOrderItem") // One-to-many relationship with OrderItem
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   @@index([colorId])
 }
