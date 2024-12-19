@@ -20,7 +20,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="w-60 py-12 px-4 border-r bg-gray-100 flex flex-col justify-between min-h-screen">
+    <div className="w-60 py-12 px-4 border-r bg-background flex flex-col justify-between min-h-screen">
       {/* Top Section */}
       <div>
         {/* Logo */}
@@ -35,8 +35,8 @@ const Sidebar = () => {
               <Link
                 className={`block py-2 px-3 rounded-md ${
                   currentPath === link.path
-                    ? "text-blue-600 font-semibold bg-blue-100"
-                    : "text-gray-600 hover:text-blue-600 hover:bg-gray-200"
+                    ? "text-primary font-semibold bg-primary/10"
+                    : "text-muted-foreground hover:text-primary hover:bg-muted"
                 }`}
                 href={link.path}
               >

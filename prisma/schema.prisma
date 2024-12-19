@@ -24,17 +24,25 @@ model User {
   @@index([email])
 }
 
+enum CardType {
+  BLACK
+  GOLD
+  SILVER
+  WHITE
+}
+
 model Card {
   id             String       @id @default(uuid())
-  type           String
-  status         String
-  activationDate DateTime?
+  type           CardType // Enum to define the type of card
+  status         String // Status of the card (e.g., Active, Inactive)
+  isActivated    Boolean      @default(false) // Indicates if the card is activated
+  activationDate DateTime? // Date when the card was activated
   linkedUserId   String
   linkedUser     User         @relation("UserToCard", fields: [linkedUserId], references: [id])
-  uniqueURL      String       @unique
-  content        CardContent?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  uniqueURL      String       @unique // Unique URL for the card
+  content        CardContent? // JSON content associated with the card
+  createdAt      DateTime     @default(now()) // Creation timestamp
+  updatedAt      DateTime     @updatedAt // Update timestamp
 
   @@index([uniqueURL])
   @@index([linkedUserId])
