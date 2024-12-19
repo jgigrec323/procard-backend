@@ -5,6 +5,7 @@ import React from "react";
 import { UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import Logo from "./logo";
+import { ThemeToggle } from "./theme-toggle";
 
 const Sidebar = () => {
   const currentPath = usePathname();
@@ -48,8 +49,9 @@ const Sidebar = () => {
       </div>
 
       {/* Footer Actions */}
-      <div className="mt-10">
+      <div className="mt-10 flex items-center gap-3">
         <UserButton />
+        <ThemeToggle></ThemeToggle>
       </div>
     </div>
   );
