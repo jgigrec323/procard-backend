@@ -15,8 +15,12 @@ model User {
   password  String
   phone     String?   @db.VarChar(20)
   role      String    @default("user")
-  cards     Card[]    @relation("UserToCard") // One-to-many relationship
-  orders    Order[]   @relation("UserToOrder") // One-to-many relationship
+  cards     Card[]    @relation("UserToCard")
+  orders    Order[]   @relation("UserToOrder")
+  logs      Log[]     @relation("UserToLog")
+  about     About?
+  aboutId   String?
+  resumes   Resume[]  @relation("UserToResume")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -33,29 +37,41 @@ enum CardType {
 
 model Card {
   id             String       @id @default(uuid())
-  type           CardType // Enum to define the type of card
-  status         String // Status of the card (e.g., Active, Inactive)
-  isActivated    Boolean      @default(false) // Indicates if the card is activated
-  activationDate DateTime? // Date when the card was activated
+  type           CardType
+  status         String
+  isActivated    Boolean      @default(false)
+  activationDate DateTime?
   linkedUserId   String
   linkedUser     User         @relation("UserToCard", fields: [linkedUserId], references: [id])
-  uniqueURL      String       @unique // Unique URL for the card
-  content        CardContent? // JSON content associated with the card
-  createdAt      DateTime     @default(now()) // Creation timestamp
-  updatedAt      DateTime     @updatedAt // Update timestamp
+  uniqueURL      String       @unique
+  content        CardContent?
+  contentId      String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   @@index([uniqueURL])
   @@index([linkedUserId])
+}
+
+model CardContent {
+  id        String   @id @default(uuid())
+  cardId    String   @unique
+  card      Card     @relation(fields: [cardId], references: [id])
+  content   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([cardId])
 }
 
 model Order {
   id              String      @id @default(uuid())
   userId          String
   user            User        @relation("UserToOrder", fields: [userId], references: [id], onDelete: Cascade)
-  phone           String      @db.VarChar(20) // Phone field for contact details
+  phone           String      @db.VarChar(20)
   shippingAddress String?
-  orderItems      OrderItem[] @relation("OrderToOrderItem") // One-to-many relationship with OrderItem
-  isPaid          Boolean     @default(false) // Track payment status
+  orderItems      OrderItem[] @relation("OrderToOrderItem")
+  isPaid          Boolean     @default(false)
   status          OrderStatus
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
@@ -69,8 +85,8 @@ model OrderItem {
   order     Order    @relation("OrderToOrderItem", fields: [orderId], references: [id], onDelete: Cascade)
   productId String
   product   Product  @relation("ProductToOrderItem", fields: [productId], references: [id], onDelete: Cascade)
-  quantity  Int      @default(1) // Quantity of the product
-  price     Decimal // Price of the product at the time of purchase
+  quantity  Int      @default(1)
+  price     Decimal
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -88,29 +104,11 @@ model Product {
   isArchived  Boolean     @default(false)
   colorId     String
   color       Color       @relation("ColorToProduct", fields: [colorId], references: [id])
-  orderItems  OrderItem[] @relation("ProductToOrderItem") // One-to-many relationship with OrderItem
+  orderItems  OrderItem[] @relation("ProductToOrderItem")
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
   @@index([colorId])
-}
-
-model CardContent {
-  id        String   @id @default(uuid())
-  cardId    String   @unique
-  card      Card     @relation(fields: [cardId], references: [id])
-  content   Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([cardId])
-}
-
-enum OrderStatus {
-  PENDING
-  SHIPPED
-  DELIVERED
-  CANCELLED
 }
 
 model Color {
@@ -120,4 +118,114 @@ model Color {
   products  Product[] @relation("ColorToProduct")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+}
+
+model About {
+  id             String          @id @default(uuid())
+  userId         String          @unique
+  user           User            @relation(fields: [userId], references: [id])
+  description    String?
+  skills         Skill[]         @relation("AboutToSkill")
+  hobbies        Hobby[]         @relation("AboutToHobby")
+  certifications Certification[] @relation("AboutToCertification")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Skill {
+  id        String   @id @default(uuid())
+  aboutId   String
+  about     About    @relation("AboutToSkill", fields: [aboutId], references: [id])
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([aboutId])
+}
+
+model Hobby {
+  id        String   @id @default(uuid())
+  aboutId   String
+  about     About    @relation("AboutToHobby", fields: [aboutId], references: [id])
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([aboutId])
+}
+
+model Certification {
+  id          String   @id @default(uuid())
+  aboutId     String
+  about       About    @relation("AboutToCertification", fields: [aboutId], references: [id])
+  title       String
+  institution String
+  date        DateTime
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([aboutId])
+}
+
+model Resume {
+  id          String       @id @default(uuid())
+  userId      String
+  user        User         @relation("UserToResume", fields: [userId], references: [id])
+  experiences Experience[] @relation("ResumeToExperience")
+  education   Education[]  @relation("ResumeToEducation")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([userId])
+}
+
+model Experience {
+  id          String    @id @default(uuid())
+  resumeId    String
+  resume      Resume    @relation("ResumeToExperience", fields: [resumeId], references: [id])
+  title       String
+  company     String
+  startDate   DateTime
+  endDate     DateTime?
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([resumeId])
+}
+
+model Education {
+  id          String    @id @default(uuid())
+  resumeId    String
+  resume      Resume    @relation("ResumeToEducation", fields: [resumeId], references: [id])
+  degree      String
+  institution String
+  startDate   DateTime
+  endDate     DateTime?
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([resumeId])
+}
+
+model Log {
+  id          String   @id @default(uuid())
+  userId      String?
+  user        User?    @relation("UserToLog", fields: [userId], references: [id])
+  action      String
+  page        String?
+  description String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+enum OrderStatus {
+  PENDING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
