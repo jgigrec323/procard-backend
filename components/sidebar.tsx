@@ -17,6 +17,7 @@ const Sidebar = () => {
     { path: "/colors", label: "Colors" },
     { path: "/users", label: "Users" },
     { path: "/orders", label: "Orders" },
+    { path: "/logs", label: "Logs" },
     { path: "/settings", label: "Settings" },
   ];
 
